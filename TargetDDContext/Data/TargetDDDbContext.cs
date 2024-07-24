@@ -5,13 +5,13 @@ using TargetDDContext.Models;
 
 namespace TargetDDContext.Data;
 
-public partial class TargetDDContext : DbContext
+public partial class TargetDDDbContext : DbContext
 {
-    public TargetDDContext()
+    public TargetDDDbContext()
     {
     }
 
-    public TargetDDContext(DbContextOptions<TargetDDContext> options)
+    public TargetDDDbContext(DbContextOptions<TargetDDDbContext> options)
         : base(options)
     {
     }
