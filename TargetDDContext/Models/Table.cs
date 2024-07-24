@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TargetDDContext.Models;
 
@@ -15,9 +16,15 @@ public partial class Table
 
     public string? SourceTable { get; set; }
 
+    public string? Description { get; set; }
+
+    public bool? NeedsMigration { get; set; }
+
     public virtual ICollection<Column> Columns { get; set; } = new List<Column>();
 
+
     public virtual ICollection<FamilyPath> ParentPaths { get; set; } = new List<FamilyPath>();
+
 
     public virtual ICollection<FamilyPath> ChildPaths { get; set; } = new List<FamilyPath>();
 

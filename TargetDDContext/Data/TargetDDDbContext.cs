@@ -118,7 +118,7 @@ public partial class TargetDDDbContext : DbContext
 
         modelBuilder.Entity<FamilyPath>(entity =>
         {
-            entity.HasNoKey();
+            entity.HasKey(e => new {e.Fullpath }).HasName("PK_FULLPATH");
 
             entity.Property(e => e.FktableName)
                 .HasMaxLength(128)
@@ -143,18 +143,21 @@ public partial class TargetDDDbContext : DbContext
 
             entity.HasOne(d => d.Table).WithMany(t => t.ParentPaths)
                 .HasForeignKey(d => new { d.FktableOwner, d.FktableName })
+                .HasPrincipalKey(t => new {t.TableSchema, t.TableName })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Table");
 
             entity.HasOne(d => d.TableNavigation).WithMany(t => t.ChildPaths)
                 .HasForeignKey(d => new { d.PktableOwner, d.PktableName })
+                .HasPrincipalKey(t => new { t.TableSchema, t.TableName })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("PK_Table");
+
         });
 
         modelBuilder.Entity<ForeignKey>(entity =>
         {
-            entity.HasNoKey();
+            entity.HasKey(e => new {e.FktableOwner, e.FktableName,  e.FkName }).HasName("PK_FK_NAME_PK_NAME");
 
             entity.Property(e => e.Deferrability).HasColumnName("DEFERRABILITY");
             entity.Property(e => e.DeleteRule).HasColumnName("DELETE_RULE");
@@ -193,17 +196,23 @@ public partial class TargetDDDbContext : DbContext
 
             entity.HasOne(d => d.ForeignKeyColumn).WithMany(c => c.ForeignKeys)
                 .HasForeignKey(d => new { d.FktableOwner, d.FktableName, d.FkcolumnName })
+                .HasPrincipalKey(f => new {f.TableSchema, f.TableName, f.ColumnName })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Column");
 
             entity.HasOne(d => d.PrimaryKeyColumn).WithMany(c => c.PrimaryKeys)
                 .HasForeignKey(d => new { d.PktableOwner, d.PktableName, d.PkcolumnName })
+                .HasPrincipalKey(f => new { f.TableSchema, f.TableName, f.ColumnName })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("PK_Column");
+
         });
 
         modelBuilder.Entity<Table>(entity =>
         {
+
+            
+
             entity.HasKey(e => new { e.TableSchema, e.TableName }).HasName("PK_Schema_Table");
 
             entity.Property(e => e.TableSchema)

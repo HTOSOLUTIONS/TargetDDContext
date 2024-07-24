@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TargetDDContext.Models;
 
@@ -59,10 +60,16 @@ public partial class Column
 
     public int? DistinctValues { get; set; }
 
+    public string? Description { get; set; }
+
+    public bool? NeedsMigration { get; set; }
+
+
     public virtual Table Table { get; set; } = null!;
 
 
     public virtual ICollection<ForeignKey> ForeignKeys { get; set; } = new List<ForeignKey>();
+
 
     public virtual ICollection<ForeignKey> PrimaryKeys { get; set; } = new List<ForeignKey>();
 
