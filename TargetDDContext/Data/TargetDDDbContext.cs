@@ -18,6 +18,8 @@ public partial class TargetDDDbContext : DbContext
 
     public virtual DbSet<Column> Columns { get; set; }
 
+    public virtual DbSet<ColumnSource> ColumnSources { get; set; }
+
     public virtual DbSet<Config> Configs { get; set; }
 
     public virtual DbSet<FamilyPath> FamilyPaths { get; set; }
@@ -72,6 +74,7 @@ public partial class TargetDDDbContext : DbContext
                 .HasMaxLength(128)
                 .HasColumnName("DATA_TYPE");
             entity.Property(e => e.DatetimePrecision).HasColumnName("DATETIME_PRECISION");
+            entity.Property(e => e.Description).IsUnicode(false);
             entity.Property(e => e.DistinctValues).HasColumnName("DISTINCT_VALUES");
             entity.Property(e => e.DomainCatalog)
                 .HasMaxLength(128)
@@ -100,11 +103,41 @@ public partial class TargetDDDbContext : DbContext
             entity.Property(e => e.TableCatalog)
                 .HasMaxLength(128)
                 .HasColumnName("TABLE_CATALOG");
+            entity.Property(e => e.UseType)
+                .HasMaxLength(128);
 
             entity.HasOne(d => d.Table).WithMany(p => p.Columns)
                 .HasForeignKey(d => new { d.TableSchema, d.TableName })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Schema_Table");
+        });
+
+        modelBuilder.Entity<ColumnSource>(entity =>
+        {
+            entity.HasKey(e => new { e.SourceTable, e.SourceColumn, e.TargetTable, e.TargetColumn }).HasName("PK_Schema_Table_Column_Source_Target");
+
+            entity.Property(e => e.SourceTable)
+                .HasMaxLength(128)
+                .HasColumnName("Source_Table");
+            entity.Property(e => e.SourceColumn)
+                .HasMaxLength(128)
+                .HasColumnName("Source_Column");
+            entity.Property(e => e.TargetTable)
+                .HasMaxLength(128)
+                .HasColumnName("Target_Table");
+            entity.Property(e => e.TargetColumn)
+                .HasMaxLength(128)
+                .HasColumnName("Target_Column");
+            entity.Property(e => e.SourceSchema)
+                .HasMaxLength(128)
+                .HasColumnName("Source_Schema");
+            entity.Property(e => e.TargetSchema)
+                .HasMaxLength(128)
+                .HasColumnName("Target_Schema");
+
+            entity.HasOne(d => d.Column).WithMany(p => p.ColumnSources)
+                .HasForeignKey(d => new { d.TargetSchema, d.TargetTable, d.TargetColumn })
+                .HasConstraintName("FK_Target_Column");
         });
 
         modelBuilder.Entity<Config>(entity =>
@@ -118,7 +151,7 @@ public partial class TargetDDDbContext : DbContext
 
         modelBuilder.Entity<FamilyPath>(entity =>
         {
-            entity.HasKey(e => new {e.Fullpath }).HasName("PK_FULLPATH");
+            entity.HasKey(e => e.Fullpath).HasName("PK_FULLPATH");
 
             entity.Property(e => e.FktableName)
                 .HasMaxLength(128)
@@ -141,13 +174,13 @@ public partial class TargetDDDbContext : DbContext
                 .HasMaxLength(128)
                 .HasColumnName("PKTABLE_OWNER");
 
-            entity.HasOne(d => d.Table).WithMany(t => t.ParentPaths)
+            entity.HasOne(d => d.ChildTable).WithMany(t => t.ParentPaths)
                 .HasForeignKey(d => new { d.FktableOwner, d.FktableName })
                 .HasPrincipalKey(t => new {t.TableSchema, t.TableName })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Table");
 
-            entity.HasOne(d => d.TableNavigation).WithMany(t => t.ChildPaths)
+            entity.HasOne(d => d.ParentTable).WithMany(t => t.ChildPaths)
                 .HasForeignKey(d => new { d.PktableOwner, d.PktableName })
                 .HasPrincipalKey(t => new { t.TableSchema, t.TableName })
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -157,7 +190,7 @@ public partial class TargetDDDbContext : DbContext
 
         modelBuilder.Entity<ForeignKey>(entity =>
         {
-            entity.HasKey(e => new {e.FktableOwner, e.FktableName,  e.FkName }).HasName("PK_FK_NAME_PK_NAME");
+            entity.HasKey(e => new { e.FktableOwner, e.FktableName, e.FkName }).HasName("PK_FK_NAME_PK_NAME");
 
             entity.Property(e => e.Deferrability).HasColumnName("DEFERRABILITY");
             entity.Property(e => e.DeleteRule).HasColumnName("DELETE_RULE");
@@ -205,14 +238,10 @@ public partial class TargetDDDbContext : DbContext
                 .HasPrincipalKey(f => new { f.TableSchema, f.TableName, f.ColumnName })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("PK_Column");
-
         });
 
         modelBuilder.Entity<Table>(entity =>
         {
-
-            
-
             entity.HasKey(e => new { e.TableSchema, e.TableName }).HasName("PK_Schema_Table");
 
             entity.Property(e => e.TableSchema)
@@ -222,10 +251,18 @@ public partial class TargetDDDbContext : DbContext
                 .HasMaxLength(128)
                 .HasColumnName("TABLE_NAME");
             entity.Property(e => e.ColCount).HasColumnName("COL_COUNT");
+            entity.Property(e => e.Description).IsUnicode(false);
             entity.Property(e => e.RowCount).HasColumnName("ROW_COUNT");
             entity.Property(e => e.SourceTable)
                 .HasMaxLength(500)
                 .HasColumnName("Source_Table");
+            entity.Property(e => e.TableCatalog)
+                .HasMaxLength(128)
+                .HasColumnName("TABLE_CATALOG");
+            entity.Property(e => e.UseDomain)
+                .HasMaxLength(128);
+            entity.Property(e => e.UseType)
+                .HasMaxLength(128);
         });
 
         OnModelCreatingPartial(modelBuilder);

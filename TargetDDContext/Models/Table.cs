@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using IDataMigrations.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TargetDDContext.Models;
 
-public partial class Table
+public partial class Table : IMigrationTable
 {
     public string TableSchema { get; set; } = null!;
 
@@ -20,13 +19,25 @@ public partial class Table
 
     public bool? NeedsMigration { get; set; }
 
+    public string? UseDomain { get; set; }
+
+    public string? UseType { get; set; }
+
+
     public virtual ICollection<Column> Columns { get; set; } = new List<Column>();
 
 
     public virtual ICollection<FamilyPath> ParentPaths { get; set; } = new List<FamilyPath>();
 
-
     public virtual ICollection<FamilyPath> ChildPaths { get; set; } = new List<FamilyPath>();
+  
+
+    public string TableCatalog { get; set; } = null!;
+
+
+    [NotMapped]
+    public ICollection<IDDColumn> IDDColumns { get { return Columns.Cast<IDDColumn>().ToList(); } set { } }
+
 
 
 }

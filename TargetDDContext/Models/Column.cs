@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using IDataMigrations.Interfaces;
+
 
 namespace TargetDDContext.Models;
 
-public partial class Column
+public partial class Column : IMigrationColumn
 {
-    public string? TableCatalog { get; set; }
+    public string TableCatalog { get; set; } = null!;
 
     public string TableSchema { get; set; } = null!;
 
@@ -64,16 +66,21 @@ public partial class Column
 
     public bool? NeedsMigration { get; set; }
 
+    public string? UseType { get; set; }
+
+
 
     public virtual Table Table { get; set; } = null!;
 
 
-    public virtual ICollection<ForeignKey> ForeignKeys { get; set; } = new List<ForeignKey>();
+    [NotMapped]
+    public IDDTable IDDTable { get { return Table as IMigrationTable; } set { } }
 
+
+    public virtual ICollection<ForeignKey> ForeignKeys { get; set; } = new List<ForeignKey>();
 
     public virtual ICollection<ForeignKey> PrimaryKeys { get; set; } = new List<ForeignKey>();
 
-
-
+    public virtual ICollection<ColumnSource> ColumnSources { get; set; } = new List<ColumnSource>();
 
 }

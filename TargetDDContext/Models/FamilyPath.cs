@@ -17,9 +17,9 @@ public partial class FamilyPath
 
     public int? Children { get; set; }
 
-    public string? Fullpath { get; set; }
+    public string Fullpath { get; set; } = null!;
 
-    public virtual Table Table { get; set; } = null!;
+    public virtual Table ChildTable { get; set; } = null!;
 
-    public virtual Table TableNavigation { get; set; } = null!;
+    public virtual Table ParentTable { get; set; } = null!;
 }
