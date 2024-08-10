@@ -36,4 +36,8 @@ public partial class ForeignKey
     public virtual Column ForeignKeyColumn { get; set; } = null!;
 
     public virtual Column PrimaryKeyColumn { get; set; } = null!;
+
+    public virtual ICollection<FamilyPath> FamilyPaths { get; set; } = new List<FamilyPath>();
+
+
 }

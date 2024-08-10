@@ -151,7 +151,7 @@ public partial class TargetDDDbContext : DbContext
 
         modelBuilder.Entity<FamilyPath>(entity =>
         {
-            entity.HasKey(e => e.Fullpath).HasName("PK_FULLPATH");
+            entity.HasKey(e => new { e.Fullpath, e.FkName }).HasName("PK_FULLPATH_FK_NAME");
 
             entity.Property(e => e.FktableName)
                 .HasMaxLength(128)
@@ -173,6 +173,9 @@ public partial class TargetDDDbContext : DbContext
             entity.Property(e => e.PktableOwner)
                 .HasMaxLength(128)
                 .HasColumnName("PKTABLE_OWNER");
+            entity.Property(e => e.FkName)
+                .HasMaxLength(128)
+                .HasColumnName("FK_NAME");
 
             entity.HasOne(d => d.ChildTable).WithMany(t => t.ParentPaths)
                 .HasForeignKey(d => new { d.FktableOwner, d.FktableName })
@@ -186,11 +189,19 @@ public partial class TargetDDDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("PK_Table");
 
+            entity.HasOne(d => d.ForeignKey).WithMany(t => t.FamilyPaths)
+                .HasForeignKey(d => d.FkName )
+                .HasPrincipalKey(t =>  t.FkName )
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_ForeignKey");
+
+
+
         });
 
         modelBuilder.Entity<ForeignKey>(entity =>
         {
-            entity.HasKey(e => new { e.FktableOwner, e.FktableName, e.FkName }).HasName("PK_FK_NAME_PK_NAME");
+            entity.HasKey(e => e.FkName).HasName("PK_FK_NAME");
 
             entity.Property(e => e.Deferrability).HasColumnName("DEFERRABILITY");
             entity.Property(e => e.DeleteRule).HasColumnName("DELETE_RULE");

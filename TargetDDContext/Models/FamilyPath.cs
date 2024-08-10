@@ -19,7 +19,12 @@ public partial class FamilyPath
 
     public string Fullpath { get; set; } = null!;
 
+    public string FkName { get; set; } = null!;
+
     public virtual Table ChildTable { get; set; } = null!;
 
     public virtual Table ParentTable { get; set; } = null!;
+
+    public virtual ForeignKey ForeignKey { get; set; } = null!;
+
 }
